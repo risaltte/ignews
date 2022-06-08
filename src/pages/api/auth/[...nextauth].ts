@@ -20,18 +20,41 @@ export default NextAuth({
         // ...add more providers here
     ],
 
+    secret: process.env.JWT_SECRET,
+
     callbacks: {
-        async signIn({ user, account, profile, email, credentials }) {
-            const { email: emailAdress  } = user;
+        async signIn({ user, account, profile }) {
+            const { email } = user;
 
-            await fauna.query(
-                q.Create(
-                    q.Collection('users'),
-                    { data: { email: emailAdress } }
-                )
-            );
+            try {
+                await fauna.query(
+                    q.If(
+                        q.Not(
+                            q.Exists(
+                                q.Match(
+                                    q.Index('user_by_email'),
+                                    q.Casefold(user.email)
+                                )
+                            )
+                        ),
+                        q.Create(
+                            q.Collection('users'),
+                            { data: { email } }
+                        ),
+                        q.Get(
+                            q.Match(
+                                q.Index('user_by_email'),
+                                q.Casefold(user.email)
+                            )
+                        )
+                    )
+                );
+    
+                return true;
 
-            return true;
+            } catch {
+                return false;
+            }
         },
     }
     
