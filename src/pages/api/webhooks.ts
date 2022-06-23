@@ -22,6 +22,13 @@ const relevantEvents = new Set([
     'checkout.session.completed'
 ]);
 
+// desabilita o bodyParser do next. Sem isso estava dando erro na verificação de assinatura do webhook
+export const config = {
+    api: {
+      bodyParser: false
+    }
+}
+
 export default async (request: NextApiRequest, response: NextApiResponse) => {
     if (request.method === 'POST') {
         const buf = await buffer(request);
