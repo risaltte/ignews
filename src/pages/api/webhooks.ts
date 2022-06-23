@@ -1,3 +1,5 @@
+/* eslint-disable import/no-anonymous-default-export */
+
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from 'stream';
 import Stripe from "stripe";
@@ -63,6 +65,6 @@ export default async (request: NextApiRequest, response: NextApiResponse) => {
         
     } else {
         response.setHeader('Allow', 'POST');
-        response.status(405).end('Method nor allowed');
+        response.status(405).end('Method not allowed');
     }
 }
